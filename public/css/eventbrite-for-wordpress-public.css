@@ -1,0 +1,111 @@
+.eventbritelist .list {
+    display: grid;
+    grid-gap: 20px;
+}
+
+.eventbritelist .list .event {
+}
+
+.eventbritelist .list .event .title {
+    font-weight: bold;
+}
+
+.eventbritelist .list .event {
+    display: grid;
+    grid-template-columns: 200px auto;
+    grid-gap: 0px 10px;
+}
+
+.eventbritelist .list .event.hidden {
+    display: none;
+}
+
+.eventbritelist .list .event .time, .eventbritelist .list .event .location {
+    font-size: 80%;
+}
+
+.eventbritelist .list .event .image {
+    grid-row: 1/5;
+    padding-top: 3px;
+}
+
+.eventbritelist .list .event .image img {
+    height: 100px;
+}
+
+.eventbritelist .list .event:hover .image img {
+    transform: scale(1.02);
+}
+
+.eventbritelist .list .event .link {
+    text-align: right;
+}
+
+.eventbritelist .list p {
+    padding-bottom: 0;
+}
+
+.eventbritelist .list div {
+    font-size: 100%;
+    line-height: 1.2em;
+    padding: 0.3em 0;
+}
+    
+.eventbritelist .list .button {
+    background-color: green;
+    border: none;
+    color: white;
+    padding: .3em .5em;
+    border-radius: 3px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 80%;
+    margin: .3em 0;
+}
+
+.eventbritelist button {
+    background:none!important;
+    border:none; 
+    padding:0!important;
+    cursor:pointer;
+}
+
+.eventbritelist .list button:hover {
+    text-decoration:underline;
+}
+
+.eventbritelist .list .button.available {
+    background-color: green;
+}
+
+.eventbritelist .list .button.limited {
+    background-color: orange;
+}
+
+.eventbritelist .list .button.oneleft {
+    background-color: darkred;
+}
+
+.eventbritelist .list .button.soldout {
+    background-color: #222222;
+}
+
+.eventbritelist .list .button.future {
+    background-color: lightblue;
+}
+
+.eventbritelist .list .button:hover {
+    text-decoration: none;
+    opacity: 0.7;
+    padding: .3em .7em;
+}
+
+@media screen and (max-width: 39.9375em) {
+    .eventbritelist .list .event {
+        grid-template-columns: auto;
+    }
+    .eventbritelist .list .event .image img {
+        height: 160px;
+    }
+}
