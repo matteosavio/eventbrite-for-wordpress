@@ -37,7 +37,7 @@ class Eventbrite_Connector {
         }
         
         $events = $this->eventbritelist_getEventsForProfiles(EVENTBRITELIST_CONFIG);
-            wp_die('test');
+
         /* MISSING: WALK THROUGH ALL FUTURE + 1hr EVENTS WHERE the CUSTOM FIELD IS SET AND CHECK IF THE ID ISN'T IN THE EVENT_LIST */
 
         foreach($events as $event) {
@@ -157,7 +157,7 @@ class Eventbrite_Connector {
                 $this->unpublishEventIfExists($event['event']['id']);
             }
         }
-    
+    wp_die('test');
         /* check if any future event got deleted on Eventbrite and delte them if so */
         $args = [
         	'orderby'          => 'date',
@@ -289,7 +289,7 @@ class Eventbrite_Connector {
         if(empty($eventbriteEventId)) {
             return false;
         }
-        
+        var_dump($eventbriteEventId);
         $args = [
         	'meta_key'         => self::EVENTBRITELIST_EVENT_KEY,
         	'meta_value'       => $eventbriteEventId,
@@ -298,7 +298,6 @@ class Eventbrite_Connector {
         	'suppress_filters' => true 
         ];
         $existingEvents = get_posts($args);
-        
         if($existingEvents) {
             if(count($existingEvents) == 1) {
                 $existingEvent = array_shift($existingEvents);
@@ -318,7 +317,6 @@ class Eventbrite_Connector {
         }
         else {
             if($postId = wp_insert_post( $eventData )) {
-                var_dump($postId);
                 if (!add_post_meta($postId, self::EVENTBRITELIST_EVENT_KEY, $eventbriteEventId, true ) ) { 
                     update_post_meta($postId, self::EVENTBRITELIST_EVENT_KEY, $eventbriteEventId);
                 }
@@ -328,7 +326,6 @@ class Eventbrite_Connector {
                     }
                 }
             }
-                var_dump($postId);
         }  
     }
     

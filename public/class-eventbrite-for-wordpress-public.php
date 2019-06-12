@@ -196,7 +196,7 @@ class Eventbrite_For_Wordpress_Public {
                 $ticketsAvailableString = '<a href="' . $eventUrl . '" class="button available" title="Updated: ' .  get_post_modified_time("l, j. F Y H:i", false, $event->ID ) . '">tickets not available</a>';
             }*/
             else {
-                $ticketsAvailableString = '<a href="' . $eventUrl . '" class="button available" title="Updated: ' .  get_post_modified_time("l, j. F Y H:i", false, $event->ID ) . '">Tickets &raquo;</a>';
+                $ticketsAvailableString = '<a href="' . $eventUrl . '" class="button available" title="Updated: ' .  get_post_modified_time("l, j. F Y H:i", false, $event->ID ) . '">' . __('To the event »', 'eventbrite-for-wordpress') . '</a>';
             }
             
             if($limitEventsToShow > 0) {
@@ -212,13 +212,13 @@ class Eventbrite_For_Wordpress_Public {
                 $content .= '<img src="' . get_post_meta($event->ID, 'eventbritelist_eventbrite_image', true) . '">';
             }
             $content .= '</div>';
-            $content .= '<div class="time"><i class="fal fa-calendar"></i> ' . get_the_time( "l, j. F Y H:i", $event->ID ) . '</div>';
+            $content .= '<div class="time"><i class="fal fa-calendar"></i> ' . get_the_time( "l, j. F Y H:i", $event->ID ) . '</div>' . "\n";
             $content .= '<div class="title">
                 <a href="' . $eventUrl  . '">' . $event->post_title . '</a>';
             if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true))) {
-                $content .= ' by <a href="' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_url', true) . '">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true) . '</a>
-                </div>';
+                $content .= ' by <a href="' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_url', true) . '">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true) . '</a>';
             }
+            $content .= '</div>';
             if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true))) {
                 $content .= '<div class="location"><i class="fal fa-thumbtack"></i> <a href="http://www.google.com/maps/place/' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_latitude', true) . ',' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_longitude', true) . '" target="_blank">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true) . '</a></div>';
             }
@@ -232,7 +232,7 @@ class Eventbrite_For_Wordpress_Public {
         }
         $content .= '</div>'."\n";
         if($hiddenEvents > 0) {
-            $content .= "<p><button class=\"moreevents\">Show more ($hiddenEvents) events</button></p>";
+            $content .= "<p><button class=\"moreevents\" onClick=\"showHiddenEvents()\">Mehr Events anzeigen ($hiddenEvents)</button></p>";
         }
         $content .= '</div>'."\n";
         return $content;	
