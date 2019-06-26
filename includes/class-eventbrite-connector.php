@@ -175,6 +175,11 @@ class Eventbrite_Connector {
             }
         }
     }
+    
+    public function testCall($appProfileKeys) {
+        var_dump($this->eventbritelist_getEventsForProfiles($appProfileKeys));
+        wp_die();
+    }
 
     private function eventbritelist_getEventsForProfiles($appProfileKeys) {
         $eventbriteEvents = [];

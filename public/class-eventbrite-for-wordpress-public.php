@@ -114,7 +114,7 @@ class Eventbrite_For_Wordpress_Public {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/eventbrite-for-wordpress-public.js', array( 'jquery' ), $this->version, false );
+//		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/eventbrite-for-wordpress-public.js', array( 'jquery' ), $this->version, false );
     }
 	
 	public function eventbrite_list() {
@@ -232,7 +232,7 @@ class Eventbrite_For_Wordpress_Public {
         }
         $content .= '</div>'."\n";
         if($hiddenEvents > 0) {
-            $content .= "<p><button class=\"moreevents\" onClick=\"showHiddenEvents()\">Mehr Events anzeigen ($hiddenEvents)</button></p>";
+            $content .= "<p><button class=\"moreevents\" onClick=\"document.querySelector('.hidden.event').style.display = 'grid';document.querySelector('.moreevents').style.display = 'none';\">Mehr Events anzeigen ($hiddenEvents)</button></p>";
         }
         $content .= '</div>'."\n";
         return $content;	
