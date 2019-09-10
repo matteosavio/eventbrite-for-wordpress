@@ -37,7 +37,6 @@ class Eventbrite_Connector {
         }
         
         $events = $this->eventbritelist_getEventsForProfiles(EVENTBRITELIST_CONFIG);
-
         /* MISSING: WALK THROUGH ALL FUTURE + 1hr EVENTS WHERE the CUSTOM FIELD IS SET AND CHECK IF THE ID ISN'T IN THE EVENT_LIST */
 
         foreach($events as $event) {
@@ -59,7 +58,10 @@ class Eventbrite_Connector {
                   'post_excerpt'  => mb_strimwidth($event['event']['description']['text'], 0, 160, "..."),
                 ];
                 
-                $customFields = ['eventbritelist_eventbrite_link' => $event['event']['url']];
+                $customFields = [
+                    'eventbritelist_eventbrite_link' => $event['event']['url'],
+                    'eventbritelist_organizer_id' => $event['event']['organizer_id']
+                ];
                 
                 if(!empty($event['event']['logo']['url'])) {
                     $customFields['eventbritelist_eventbrite_image'] = $event['event']['logo']['url'];
@@ -157,8 +159,7 @@ class Eventbrite_Connector {
                 $this->unpublishEventIfExists($event['event']['id']);
             }
         }
-    wp_die('test');
-        /* check if any future event got deleted on Eventbrite and delte them if so */
+        // check if any future event got deleted on Eventbrite and delete them if so
         $args = [
         	'orderby'          => 'date',
         	'order'            => 'ASC',
@@ -170,8 +171,23 @@ class Eventbrite_Connector {
         $futureEvents = get_posts($args);
         
         foreach($futureEvents as $futureEvent) {
-            if(!$this->eventbritelist_checkIfEventExists($futureEvent->ID)) {
-                unpublishEventIfExists($futureEvent->ID);
+            $eventbriteEventId = get_post_meta($futureEvent->ID, self::EVENTBRITELIST_EVENT_KEY, true);
+            $eventbriteOrganizerId = get_post_meta($futureEvent->ID, 'eventbritelist_organizer_id', true);
+            var_dump($eventbriteEventId);
+            $apiToken = NULL;
+            foreach(EVENTBRITELIST_CONFIG as $key => $organizerIds) {
+                if(in_array($eventbriteOrganizerId, $organizerIds)) {
+                    $apiToken = $key;
+                }
+            }
+
+            if(!is_null($apiToken)) {
+                if(!$this->eventbritelist_checkIfEventExists($apiToken, $eventbriteEventId)) {
+                    $this->unpublishEventIfExists($futureEvent->ID);
+                }
+            }
+            else { // in this case the orgnizer id is either not present at all or is wrong, so the event needs to be removed
+                wp_delete_post($futureEvent->ID, false);
             }
         }
     }
@@ -241,7 +257,10 @@ class Eventbrite_Connector {
         return $events;
     }
     
-    function eventbritelist_checkIfEventExists($eventId) {
+    function eventbritelist_checkIfEventExists($token, $eventId) {
+        $answer = $this->eventbritelist_eventbriteCall($token, '/events/' . $eventId . "/", [], []);
+        if($answer === false)
+            return false;
         return true;
     }
     
@@ -278,11 +297,13 @@ class Eventbrite_Connector {
             $response = array();
         }
         else if(isset($response['status_code'])) {
-            if(isset($response['error']) && !empty($response['error'])) {
-                wp_die($response['error'] . ": " . $response['error_description'] );
-            }
-            else {
-                wp_die("Undefined error with status code " . $response['status_code'] . ": " . print_R($response, true));
+            if(isset($response['error'])) {
+                if($response['error'] == 'NOT_FOUND') {
+                    return false;
+                }
+                else {
+                    wp_die($response['error'] . ": " . $response['error_description'] . ' (Line ' . __LINE__ . ')');
+                }
             }
         }
         
@@ -294,7 +315,6 @@ class Eventbrite_Connector {
         if(empty($eventbriteEventId)) {
             return false;
         }
-        var_dump($eventbriteEventId);
         $args = [
         	'meta_key'         => self::EVENTBRITELIST_EVENT_KEY,
         	'meta_value'       => $eventbriteEventId,
@@ -332,24 +352,5 @@ class Eventbrite_Connector {
                 }
             }
         }  
-    }
-    
-    private function unpublishEventIfExists($eventbriteEventId) {
-        $args = [
-        	'orderby'          => 'date',
-        	'order'            => 'DESC',
-        	'meta_key'         => self::EVENTBRITELIST_EVENT_KEY,
-        	'meta_value'       => $eventbriteEventId,
-        	'post_type'        => 'eventbritelist_event',
-        	'post_status'      => 'publish,future',
-        	'suppress_filters' => true 
-        ];
-        $existingEvents = get_posts($args);
-        
-        if($existingEvents) {
-            foreach($existingEvents as $existingEvent) {
-                wp_delete_post($existingEvent->ID);
-            }
-        }
     }
 }

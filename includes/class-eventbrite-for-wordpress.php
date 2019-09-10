@@ -186,10 +186,6 @@ class Eventbrite_For_Wordpress {
     		$connector = new Eventbrite_Connector();
             $connector->updateEvents();
 		}
-		else if(isset($_GET['run']) && ($_GET['run'] == 'test')) {
-    		$connector = new Eventbrite_Connector();
-            $connector->testCall(['MCHWP3BK7TRBE26LARCA' => ['16660490746']]);
-		}
 	}
 
 	/**
