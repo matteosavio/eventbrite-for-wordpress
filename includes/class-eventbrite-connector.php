@@ -203,14 +203,17 @@ class Eventbrite_Connector {
         foreach($appProfileKeys as $appKey => $profiles) {
             foreach($profiles as $profile) {
                 $returnedEvents = $this->eventbritelist_eventbriteGetAllEventsStarting48hrsAgoForOrganizer($appKey, $profile);
-                foreach($returnedEvents as $returnedEvent) {
-                    
-                    $eventbriteEvent = array();
-                    $eventbriteEvent['event'] = $returnedEvent;
-                    $eventbriteEvent['venue'] = $this->eventbritelist_eventbriteGetVenue($appKey, $returnedEvent['venue_id']);
-                    $eventbriteEvent['organizer'] = $this->eventbritelist_eventbriteGetOrganizer($appKey, $returnedEvent['organizer_id']);
-                    $eventbriteEvent['ticketClass'] = $this->eventbritelist_eventbriteGetTicketClasses($appKey, $returnedEvent['id']);
-                    $eventbriteEvents[] = $eventbriteEvent;
+                
+                if($returnedEvents !== false) {
+                    foreach($returnedEvents as $returnedEvent) {
+                        
+                        $eventbriteEvent = array();
+                        $eventbriteEvent['event'] = $returnedEvent;
+                        $eventbriteEvent['venue'] = $this->eventbritelist_eventbriteGetVenue($appKey, $returnedEvent['venue_id']);
+                        $eventbriteEvent['organizer'] = $this->eventbritelist_eventbriteGetOrganizer($appKey, $returnedEvent['organizer_id']);
+                        $eventbriteEvent['ticketClass'] = $this->eventbritelist_eventbriteGetTicketClasses($appKey, $returnedEvent['id']);
+                        $eventbriteEvents[] = $eventbriteEvent;
+                    }
                 }
             }
             unset($eventbriteClient);
@@ -236,6 +239,8 @@ class Eventbrite_Connector {
         $pageToQuery = 1;
         do {
             $answer = $this->eventbritelist_eventbriteCall($tokenId, '/events/' . $eventId . "/ticket_classes/", [], ['page=' . $pageToQuery]);
+            if($answer === false)
+                return false;
             $pageToQuery++;
             $ticketClasses = array_merge($ticketClasses, $answer['ticket_classes']);
         } while($answer['pagination']['has_more_items']);
@@ -250,6 +255,8 @@ class Eventbrite_Connector {
         $startDate->modify('-48 hours');
         do {
             $answer = $this->eventbritelist_eventbriteCall($tokenId, '/organizers/' . $organizerId . '/events/', [], ['status=all','start_date.range_start='.$startDate->format('Y-m-d\TH:i:s'), 'page=' . $pageToQuery]);
+            if($answer === false)
+                return false;
             $pageToQuery++;
             $events = array_merge($events, $answer['events']);
         } while($answer['pagination']['has_more_items']);
@@ -265,14 +272,18 @@ class Eventbrite_Connector {
     }
     
     function eventbritelist_eventbriteCall($token, $path, $body, $expand, $httpMethod = 'GET') {
+        if(!ini_get('allow_url_fopen') ) {
+            return new WP_Error( 'url_open', __( "Please set allow_url_fopen to true to allow opening the Eventbrite API!", "eventbrite-for-wordpress" ) );
+        } 
+        
         $data = json_encode($body);
         
         $options = array(
             'http'=>array(
-                'method'=>$httpMethod,
-                'header'=>"content-type: application/json\r\n",
-                'ignore_errors'=>true,
-                "header"=>"User-Agent: Website " . $_SERVER['HTTP_HOST']
+                'method' => $httpMethod,
+                'header' => "content-type: application/json\r\n",
+                'ignore_errors' => true,
+                'header' => "User-Agent: Website " . site_url()
             )
         );
     
@@ -290,6 +301,10 @@ class Eventbrite_Connector {
         $context  = stream_context_create($options);
         
         $result = file_get_contents($url, false, $context);
+
+        if($result === false) {
+            return false;
+        }
         
         $response = json_decode($result, true);
         
