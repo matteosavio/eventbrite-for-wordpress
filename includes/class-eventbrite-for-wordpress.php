@@ -181,11 +181,6 @@ class Eventbrite_For_Wordpress {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'eventbrite_for_wordpress_getevents', $this, 'testHook');
-		
-		if(isset($_GET['run']) && ($_GET['run'] == 'now')) {
-    		$connector = new Eventbrite_Connector();
-            $connector->updateEvents();
-		}
 	}
 
 	/**

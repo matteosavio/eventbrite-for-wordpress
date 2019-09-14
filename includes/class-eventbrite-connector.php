@@ -272,21 +272,8 @@ class Eventbrite_Connector {
     }
     
     function eventbritelist_eventbriteCall($token, $path, $body, $expand, $httpMethod = 'GET') {
-        if(!ini_get('allow_url_fopen') ) {
-            return new WP_Error( 'url_open', __( "Please set allow_url_fopen to true to allow opening the Eventbrite API!", "eventbrite-for-wordpress" ) );
-        } 
-        
         $data = json_encode($body);
-        
-        $options = array(
-            'http'=>array(
-                'method' => $httpMethod,
-                'header' => "content-type: application/json\r\n",
-                'ignore_errors' => true,
-                'header' => "User-Agent: Website " . site_url()
-            )
-        );
-    
+            
         if ($httpMethod == 'POST') {
             $options['http']['content'] = $data;
         }
@@ -297,14 +284,13 @@ class Eventbrite_Connector {
             $expand_str = implode('&', $expand);
             $url = $url . '&' . $expand_str;
         }
-        
-        $context  = stream_context_create($options);
-        
-        $result = file_get_contents($url, false, $context);
 
-        if($result === false) {
-            return false;
-        }
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_USERAGENT, "User-Agent: Website " . site_url());
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
         
         $response = json_decode($result, true);
         
@@ -367,5 +353,26 @@ class Eventbrite_Connector {
                 }
             }
         }  
+    }
+    
+    private function unpublishEventIfExists($eventbriteEventId) {
+        return;
+        
+        $args = [
+        	'orderby'          => 'date',
+        	'order'            => 'DESC',
+        	'meta_key'         => self::EVENTBRITELIST_EVENT_KEY,
+        	'meta_value'       => $eventbriteEventId,
+        	'post_type'        => 'eventbritelist_event',
+        	'post_status'      => 'publish,future',
+        	'suppress_filters' => true 
+        ];
+        $existingEvents = get_posts($args);
+        
+        if($existingEvents) {
+            foreach($existingEvents as $existingEvent) {
+                wp_delete_post($existingEvent->ID);
+            }
+        }
     }
 }
