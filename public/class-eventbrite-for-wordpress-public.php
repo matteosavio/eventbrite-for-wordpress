@@ -117,48 +117,29 @@ class Eventbrite_For_Wordpress_Public {
 //		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/eventbrite-for-wordpress-public.js', array( 'jquery' ), $this->version, false );
     }
 	
-	public function eventbrite_list() {
-    	$atts = [];
+	public function eventbrite_list($atts) {
     	
-        $status = 'future';
-        if(isset($atts['status'])) {
-            $status = $atts['status'];
-        }
-        
-        $showExcerpt = false;
-        $showDescription = false;
-        if(isset($atts['show_excerpt'])) {
-            $showDescription = true;
-        }
-            
-        /*if($showDescription == "false") {
-            $showDescription = false;
-        }
-        else {
-            $showDescription = true;
-        }
-        
-        if($showHiddenTickets == "true") {
-            $showHiddenTickets = true;
-        }
-        else {
-            $showHiddenTickets = false;
-        }*/
-            $showHiddenTickets = false;
+    	$a = shortcode_atts( array(
+    		'status' => 'future',
+    		'show_excerpt' => 'false',
+    		'limit_events_to_show' => 3
+    	), $atts );
+    	
+        $showHiddenTickets = false;
         
         $showMoreLinkIfThereAreHiddenEvents = true;
         $hiddenEvents = 0;
         
         $limitEventsToShow = 3;
-        if(isset($atts['limit_events_to_show'])) {
+        /*if(isset($atts['limit_events_to_show'])) {
             $limitEventsToShow = intval($atts['limit_events_to_show']);
-        }
+        }*/
         
         $args = [
         	'orderby'          => 'date',
         	'order'            => 'ASC',
         	'post_type'        => 'eventbritelist_event',
-            'post_status'      => $status,
+            'post_status'      => $a['status'],
         	'suppress_filters' => true,
             'posts_per_page'   => 100,
         ];
@@ -207,26 +188,28 @@ class Eventbrite_For_Wordpress_Public {
                 $hiddenEvents++;
             }
             
+            $content .= '<div class="title"><h2>
+                <a href="' . $eventUrl  . '">' . $event->post_title . '</a>';
+            $content .= '</h2></div>';
+            
             $content .= '<div class="image">';
             if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_image', true))) {
                 $content .= '<img src="' . get_post_meta($event->ID, 'eventbritelist_eventbrite_image', true) . '">';
             }
             $content .= '</div>';
-            $content .= '<div class="time"><i class="fal fa-calendar"></i> ' . get_the_time( "l, j. F Y H:i", $event->ID ) . '</div>' . "\n";
-            $content .= '<div class="title">
-                <a href="' . $eventUrl  . '">' . $event->post_title . '</a>';
-            if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true))) {
-                $content .= ' by <a href="' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_url', true) . '">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true) . '</a>';
-            }
-            $content .= '</div>';
-            if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true))) {
-                $content .= '<div class="location"><i class="fal fa-thumbtack"></i> <a href="http://www.google.com/maps/place/' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_latitude', true) . ',' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_longitude', true) . '" target="_blank">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true) . '</a></div>';
-            }
-            $content .= '<div class="description">';
-            if($showDescription) {
-                $content .= get_the_excerpt($event->ID) . '<br />';
-            }
-            $content .= $ticketsAvailableString . '</div>';
+                $content .= '<div class="infos">';
+                $content .= '<p><i class="fal fa-calendar"></i> ' . get_the_time( "l, j. F Y H:i", $event->ID );
+                if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true))) {
+                    $content .= ' by <a href="' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_url', true) . '">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true) . '</a><br />';
+                }
+                if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true))) {
+                    $content .= '<i class="fal fa-thumbtack"></i> <a href="http://www.google.com/maps/place/' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_latitude', true) . ',' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_longitude', true) . '" target="_blank">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true) . '</a><br />';
+                }
+                if($a["show_excerpt"] == 'true') {
+                    $content .= get_the_excerpt($event->ID) . '<br />';
+                }
+                $content .= $ticketsAvailableString . '</p>';
+                $content .= '</div>';
             $content .= '</div>';
             $limitEventsToShow--;
         }

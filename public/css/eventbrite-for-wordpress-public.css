@@ -4,16 +4,15 @@
 }
 
 .eventbritelist .list .event {
+    display: grid;
+    grid-template-columns: 200px auto;
+    grid-template-rows: auto;
+    grid-gap: 0px 10px;
 }
 
 .eventbritelist .list .event .title {
+    grid-column: 1/-1;
     font-weight: bold;
-}
-
-.eventbritelist .list .event {
-    display: grid;
-    grid-template-columns: 200px auto;
-    grid-gap: 0px 10px;
 }
 
 .eventbritelist .list .event.hidden {
@@ -22,15 +21,6 @@
 
 .eventbritelist .list .event .time, .eventbritelist .list .event .location {
     font-size: 80%;
-}
-
-.eventbritelist .list .event .image {
-    grid-row: 1/5;
-    padding-top: 3px;
-}
-
-.eventbritelist .list .event .image img {
-    height: 100px;
 }
 
 .eventbritelist .list .event:hover .image img {
