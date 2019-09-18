@@ -32,6 +32,16 @@ class Eventbrite_For_Wordpress_Admin {
 	private $plugin_name;
 
 	/**
+	 * The options name to be used in this plugin
+	 *
+	 * @since  	1.0.0
+	 * @access 	private
+	 * @var  	string 		$option_name 	Option name of this plugin
+	 */
+	private $option_name = 'api_setting';
+
+
+	/**
 	 * The version of this plugin.
 	 *
 	 * @since    1.0.0
@@ -107,8 +117,8 @@ class Eventbrite_For_Wordpress_Admin {
 	 */
 	public function add_options_page() {
 		$this->plugin_screen_hook_suffix = add_options_page(
-			__( 'Outdated Notice Settings', 'outdated-notice' ),
-			__( 'Outdated Notice', 'outdated-notice' ),
+			__( 'API Settings', 'api_setting' ),
+			__( 'API', 'api_setting' ),
 			'manage_options',
 			$this->plugin_name,
 			array( $this, 'display_options_page' )
@@ -130,55 +140,50 @@ class Eventbrite_For_Wordpress_Admin {
 	public function register_setting() {
 		add_settings_section(
 			$this->option_name . '_general',
-			__( 'General', 'outdated-notice' ),
+			__( 'General123213', 'api_setting' ),
 			array( $this, $this->option_name . '_general_cb' ),
 			$this->plugin_name
 		);
 		add_settings_field(
-			$this->option_name . '_position',
-			__( 'Text position', 'outdated-notice' ),
-			array( $this, $this->option_name . '_position_cb' ),
+			$this->option_name . '_apikey',
+			__( 'API KEY', 'api_setting' ),
+			array( $this, $this->option_name . '_apikey_cb' ),
 			$this->plugin_name,
 			$this->option_name . '_general',
-			array( 'label_for' => $this->option_name . '_position' )
+			array( 'label_for' => $this->option_name . '_apikey' )
 		);
+		
 		add_settings_field(
-			$this->option_name . '_day',
-			__( 'Post is outdated after', 'outdated-notice' ),
-			array( $this, $this->option_name . '_day_cb' ),
+			$this->option_name . '_orgprofile',
+			__( 'ORGANIZER_PROFILE', 'api_setting' ),
+			array( $this, $this->option_name . '_orgprofile_cb' ),
 			$this->plugin_name,
 			$this->option_name . '_general',
-			array( 'label_for' => $this->option_name . '_day' )
+			array( 'label_for' => $this->option_name . '_orgprofile' )
 		);
-		register_setting( $this->plugin_name, $this->option_name . '_position', array( $this, $this->option_name . '_sanitize_position' ) );
-		register_setting( $this->plugin_name, $this->option_name . '_day', 'intval' );
+		register_setting( $this->plugin_name, $this->option_name . '_apikey');
+		register_setting( $this->plugin_name, $this->option_name . '_orgprofile');
 	}
 	/**
 	 * Render the text for the general section
 	 *
 	 * @since  1.0.0
 	 */
-	public function outdated_notice_general_cb() {
-		echo '<p>' . __( 'Please change the settings accordingly.', 'outdated-notice' ) . '</p>';
+	public function api_setting_general_cb() {
+		echo '<p>' . __( 'Please change the settings accordingly --TESTS.', 'api_setting' ) . '</p>';
 	}
 	/**
 	 * Render the radio input field for position option
 	 *
 	 * @since  1.0.0
 	 */
-	public function outdated_notice_position_cb() {
-		$position = get_option( $this->option_name . '_position' );
+	public function api_setting_apikey_cb() {
+		$position = get_option( $this->option_name . '_apikey' );
 		?>
 			<fieldset>
 				<label>
-					<input type="radio" name="<?php echo $this->option_name . '_position' ?>" id="<?php echo $this->option_name . '_position' ?>" value="before" <?php checked( $position, 'before' ); ?>>
-					<?php _e( 'Before the content', 'outdated-notice' ); ?>
-				</label>
-				<br>
-				<label>
-					<input type="radio" name="<?php echo $this->option_name . '_position' ?>" value="after" <?php checked( $position, 'after' ); ?>>
-					<?php _e( 'After the content', 'outdated-notice' ); ?>
-				</label>
+					<input type="text" name="<?php echo $this->option_name . '_apikey' ?>" id="<?php echo $this->option_name . '_apikey' ?>" value="">					
+				</label>				
 			</fieldset>
 		<?php
 	}
@@ -187,21 +192,13 @@ class Eventbrite_For_Wordpress_Admin {
 	 *
 	 * @since  1.0.0
 	 */
-	public function outdated_notice_day_cb() {
-		$day = get_option( $this->option_name . '_day' );
-		echo '<input type="text" name="' . $this->option_name . '_day' . '" id="' . $this->option_name . '_day' . '" value="' . $day . '"> ' . __( 'days', 'outdated-notice' );
-	}
-	/**
-	 * Sanitize the text position value before being saved to database
-	 *
-	 * @param  string $position $_POST value
-	 * @since  1.0.0
-	 * @return string           Sanitized value
-	 */
-	public function outdated_notice_sanitize_position( $position ) {
-		if ( in_array( $position, array( 'before', 'after' ), true ) ) {
-	        return $position;
-	    }
-	}	
-
+	public function api_setting_orgprofile_cb() {
+		$day = get_option( $this->option_name . '_orgprofile' ); ?>
+		<fieldset>
+				<label>			
+					<input type="text" name="<?php echo $this->option_name . '_orgprofile' ?>" id="<?php echo $this->option_name . '_orgprofile';?>" value=""> 
+				</label>
+		</fieldset>			
+	<?php }
 }
+
