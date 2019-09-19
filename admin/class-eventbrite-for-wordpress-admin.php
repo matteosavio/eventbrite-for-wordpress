@@ -117,8 +117,8 @@ class Eventbrite_For_Wordpress_Admin {
 	 */
 	public function add_options_page() {
 		$this->plugin_screen_hook_suffix = add_options_page(
-			__( 'API Settings', 'api_setting' ),
-			__( 'API', 'api_setting' ),
+			__( 'Eventbrite Events', 'api_setting' ),
+			__( 'Eventbrite Events', 'api_setting' ),
 			'manage_options',
 			$this->plugin_name,
 			array( $this, 'display_options_page' )
