@@ -116,6 +116,10 @@ class Eventbrite_For_Wordpress_Admin {
 	 * @since  1.0.0
 	 */
 	public function add_options_page() {
+		
+		if( isset($_POST) && (isset($_POST['submit']) && $_POST['submit'] == ' Save Changes' ) ) {
+			 $this->save_api_data($_POST);
+		}
 		$this->plugin_screen_hook_suffix = add_options_page(
 			__( 'Eventbrite Events', 'api_setting' ),
 			__( 'Eventbrite Events', 'api_setting' ),
@@ -124,6 +128,20 @@ class Eventbrite_For_Wordpress_Admin {
 			array( $this, 'display_options_page' )
 		);
 	}
+
+	/** save data in the databse
+        */
+
+	public function save_api_data($params) {
+
+		echo " i m ahere---------------------------";
+		print_r($params); 
+		wp_die();
+
+        }
+
+
+
 	/**
 	 * Render the options page for plugin
 	 *
