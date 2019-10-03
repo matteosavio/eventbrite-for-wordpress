@@ -18,6 +18,13 @@
 
 <div class="wrap">
     <h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
+    <?php 
+     if ( $this->flag ) { // success!
+          $this->admin_notice(true);
+     } else {
+          $this->admin_notice(false);
+     }
+   ?> 
     <form action="" method="post">
         <?php
             settings_fields( $this->plugin_name );

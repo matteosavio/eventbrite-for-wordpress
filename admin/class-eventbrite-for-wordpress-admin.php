@@ -40,6 +40,7 @@ class Eventbrite_For_Wordpress_Admin {
 	 */
 	private $option_name = 'api_setting';
 
+        private $flag = false;
 
 	/**
 	 * The version of this plugin.
@@ -117,8 +118,8 @@ class Eventbrite_For_Wordpress_Admin {
 	 */
 	public function add_options_page() {
 		
-		if( isset($_POST) && (isset($_POST['submit']) && $_POST['submit'] == ' Save Changes' ) ) {
-			 $this->save_api_data($_POST);
+		if( isset($_POST) && (isset($_POST['submit']) && $_POST['submit'] == 'Save Changes' ) ) {
+			$this->save_api_data($_POST);
 		}
 		$this->plugin_screen_hook_suffix = add_options_page(
 			__( 'Eventbrite Events', 'api_setting' ),
@@ -133,15 +134,31 @@ class Eventbrite_For_Wordpress_Admin {
         */
 
 	public function save_api_data($params) {
-
-		echo " i m ahere---------------------------";
-		print_r($params); 
-		wp_die();
+		
+		$all_data =get_option('api_setting', array());		
+		// Handle our form data
+		$key   = sanitize_text_field( $_POST[$this->option_name . '_key'] );
+		$value = sanitize_text_field( $_POST[$this->option_name . '_value'] );
+		$all_data[$key]= $value;		
+		$this->flag = update_option( 'api_setting',$all_data);
 
         }
 
+	/**
+	 * success or  error on the template page
+	*/
 
-
+        public function admin_notice($flag) {
+		if($flag) {
+       			echo " <div class='notice notice-success is-dismissible'>
+            			<p>Your settings have been updated!</p>
+        		</div>";
+		} else {
+                        echo " <div class='notice notice-error is-dismissible'>
+                                <p>Error!!</p>
+                        </div>";
+		}
+        }
 	/**
 	 * Render the options page for plugin
 	 *
@@ -158,29 +175,29 @@ class Eventbrite_For_Wordpress_Admin {
 	public function register_setting() {
 		add_settings_section(
 			$this->option_name . '_general',
-			__( 'General123213', 'api_setting' ),
+			__( '', 'api_setting' ),
 			array( $this, $this->option_name . '_general_cb' ),
 			$this->plugin_name
 		);
 		add_settings_field(
-			$this->option_name . '_apikey',
+			$this->option_name . '_key',
 			__( 'API KEY', 'api_setting' ),
-			array( $this, $this->option_name . '_apikey_cb' ),
+			array( $this, $this->option_name . '_key_cb' ),
 			$this->plugin_name,
 			$this->option_name . '_general',
-			array( 'label_for' => $this->option_name . '_apikey' )
+			array( 'label_for' => $this->option_name . '_key' )
 		);
 		
 		add_settings_field(
-			$this->option_name . '_orgprofile',
+			$this->option_name . '_value',
 			__( 'ORGANIZER_PROFILE', 'api_setting' ),
-			array( $this, $this->option_name . '_orgprofile_cb' ),
+			array( $this, $this->option_name . '_value_cb' ),
 			$this->plugin_name,
 			$this->option_name . '_general',
-			array( 'label_for' => $this->option_name . '_orgprofile' )
+			array( 'label_for' => $this->option_name . '_value' )
 		);
-		register_setting( $this->plugin_name, $this->option_name . '_apikey');
-		register_setting( $this->plugin_name, $this->option_name . '_orgprofile');
+		register_setting( $this->plugin_name, $this->option_name . '_key');
+		register_setting( $this->plugin_name, $this->option_name . '_value');
 	}
 	/**
 	 * Render the text for the general section
@@ -188,19 +205,18 @@ class Eventbrite_For_Wordpress_Admin {
 	 * @since  1.0.0
 	 */
 	public function api_setting_general_cb() {
-		echo '<p>' . __( 'Please change the settings accordingly --TESTS.', 'api_setting' ) . '</p>';
+		//echo '<p>' . __( 'Please change the settings accordingly --TESTS.', 'api_setting' ) . '</p>';
 	}
 	/**
 	 * Render the radio input field for position option
 	 *
 	 * @since  1.0.0
 	 */
-	public function api_setting_apikey_cb() {
-		$position = get_option( $this->option_name . '_apikey' );
-		?>
+	public function api_setting_key_cb() {
+	?>
 			<fieldset>
 				<label>
-					<input type="text" name="<?php echo $this->option_name . '_apikey' ?>" id="<?php echo $this->option_name . '_apikey' ?>" value="">					
+					<input type="text" name="<?php echo $this->option_name . '_key' ?>" id="<?php echo $this->option_name . '_key' ?>" value="">					
 				</label>				
 			</fieldset>
 		<?php
@@ -210,11 +226,11 @@ class Eventbrite_For_Wordpress_Admin {
 	 *
 	 * @since  1.0.0
 	 */
-	public function api_setting_orgprofile_cb() {
-		$day = get_option( $this->option_name . '_orgprofile' ); ?>
+	public function api_setting_value_cb() {
+	 ?>
 		<fieldset>
 				<label>			
-					<input type="text" name="<?php echo $this->option_name . '_orgprofile' ?>" id="<?php echo $this->option_name . '_orgprofile';?>" value=""> 
+					<input type="text" name="<?php echo $this->option_name . '_value' ?>" id="<?php echo $this->option_name . '_value';?>" value=" "> 
 				</label>
 		</fieldset>			
 	<?php }
