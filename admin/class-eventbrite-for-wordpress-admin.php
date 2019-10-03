@@ -119,7 +119,7 @@ class Eventbrite_For_Wordpress_Admin {
 	public function add_options_page() {
 		
 		if( isset($_POST) && (isset($_POST['submit']) && $_POST['submit'] == 'Save Changes' ) ) {
-			$this->save_api_data($_POST);
+			$this->save_api_data();
 		}
 		$this->plugin_screen_hook_suffix = add_options_page(
 			__( 'Eventbrite Events', 'api_setting' ),
@@ -133,7 +133,7 @@ class Eventbrite_For_Wordpress_Admin {
 	/** save data in the databse
         */
 
-	public function save_api_data($params) {
+	public function save_api_data() {
 		
 		$all_data =get_option('api_setting', array());		
 		// Handle our form data
