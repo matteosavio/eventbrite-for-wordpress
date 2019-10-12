@@ -134,14 +134,22 @@ class Eventbrite_For_Wordpress_Admin {
         */
 
 	public function save_api_data() {
-		
 		$all_data =get_option('api_setting', array());		
 		// Handle our form data
-		$key   = sanitize_text_field( $_POST[$this->option_name . '_key'] );
-		$value = sanitize_text_field( $_POST[$this->option_name . '_value'] );
-		$all_data[$key]= $value;		
-		$this->flag = update_option( 'api_setting',$all_data);
+		for($i = 1 ;$i<=10; $i++) {
+			if(isset($_POST['_key'.$i])  && ( $_POST['_value'.$i] )) {
 
+				if($_POST['_key'.$i] != '' && $_POST['_value'.$i] !='' ) { 
+					
+					$key   = sanitize_text_field( $_POST['_key'.$i] );
+					$value = sanitize_text_field( $_POST['_value'.$i] );
+					$all_data[$key]= $value;
+				}
+			}
+		}
+		if(count($all_data) > 0) { 
+			$this->flag = update_option( 'api_setting',$all_data);
+		}
         }
 
 	/**
@@ -232,6 +240,7 @@ class Eventbrite_For_Wordpress_Admin {
 				<label>			
 					<input type="text" name="<?php echo $this->option_name . '_value' ?>" id="<?php echo $this->option_name . '_value';?>" value=" "> 
 				</label>
+				<div class="addmore"><a href="#">add more</a></div>
 		</fieldset>			
 	<?php }
 }
