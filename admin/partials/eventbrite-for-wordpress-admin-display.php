@@ -21,7 +21,7 @@
 	
 .btn{
   
-  margin-left: -453px;
+  /*margin-left: -453px; */
   margin-top: 43px; 
   
 }
@@ -41,7 +41,7 @@ border-image: initial;
 </style>
 
 <div class="wrap">
-    <h2>MY MESSAGE</h2>
+    <h2>Eventbrite Events for Wordpress - Settings</h2>
     <?php 
  		if ( $this->flag ) { // success!
 			 $this->admin_notice(true);
@@ -53,21 +53,19 @@ border-image: initial;
 				<div id="TextBoxDiv1">
 				   <?php //do_settings_sections( $this->plugin_name ); ?>
 				   <div>					   
-				   <input type='textbox' required id='_key1'  name='_key1' placeholder="API-Key" >
+				   <input type='textbox' required id='_key1'  name='_key1' placeholder="API-Key" />
 				   &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;
-				   <input type='textbox' required id='_value1' name='_value1' placeholder="
-				   Organizer-ID">
+				   <input type='textbox' required id='_value1' name='_value1' placeholder="Organizer-ID" />
 				   </div>
 				  </div> 
 				<div style=”clear:both;”></div>
            </div>
            <div>
-           <div  style="width:20%;padding:0 30px 0 0;float:right;">
-			   <button type="button" name='addmore' class="addmore btn">Add more</button>
-			   
-		   </div>   
+           <div  style="width:20%;padding:0 30px 0 0;float:left;">
+		 <button type="button" name='addmore' class="addmore btn">Add more</button>
+	   </div>   
            </div>
-           <div class="row" style="margin-top: 37px;"><input type='submit' id='submit' name='submit' value="Save Changes" class="button button-primary" ></div> 
+           <div class="row" style="margin-top: 80px;"><input type='submit' id='submit' name='submit' value="Save Changes" class="button button-primary" ></div> 
              
     </form>
 
@@ -86,7 +84,7 @@ $(document).ready(function(){
 	var newTextBoxDiv = $(document.createElement('div')).attr("id", 'TextBoxDiv' + counter);
                 
 	newTextBoxDiv.after().html('<div><input required placeholder="API-Key"  type="text" name="_key' + counter + 
-	      '" id="_key' + counter + '" value="" >&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<input  required placeholder="Organizer-ID"type="text" name="_value' + counter + 
+	      '" id="_key' + counter + '" value="" >&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<input  required placeholder="Organizer-ID" type="text" name="_value' + counter + 
 	      '" id="_value' + counter + '" value="" >&nbsp;&nbsp; <a href="#" id="remove'+ counter +' "  class="remove" onclick="removeme('+counter+')">Remove</a></div>');
             
 	newTextBoxDiv.appendTo("#TextBoxesGroup");
