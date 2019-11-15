@@ -308,7 +308,6 @@ class Eventbrite_Connector {
             }
         }
         
-        $response['response_headers'] = $http_response_header;
         return $response;
     }
     
