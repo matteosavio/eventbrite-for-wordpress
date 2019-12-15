@@ -144,10 +144,16 @@ class Eventbrite_For_Wordpress_Public {
             'posts_per_page'   => 100,
         ];
         $events = get_posts($args);
-        $content .= '<div class="eventbritelist">'."\n";
+        $content .= '<div class="eventbritelist" id="events">'."\n";
         $content .= '<div class="list">'."\n";
+        $locationList = [];
         
         foreach($events as $event) {
+            if(empty(get_post_meta($event->ID, 'eventbrite_info', true)))
+                continue;
+            $eventbriteInfo = json_decode(get_post_meta($event->ID, 'eventbrite_info', true));
+            $locationList[$eventbriteInfo->location_slug] = $eventbriteInfo->location;
+            
             $freeTicketAvailability =  get_post_meta($event->ID, 'eventbritelist_eventbrite_free_tickets_availability', true);
             $eventUrl = get_post_meta($event->ID, 'eventbritelist_eventbrite_link', true);
             
@@ -181,10 +187,10 @@ class Eventbrite_For_Wordpress_Public {
             }
             
             if($limitEventsToShow > 0) {
-                $content .= '<div class="event">';
+                $content .= '<div class="event location-' . $eventbriteInfo->location_slug . '">';
             }
             else {
-                $content .= '<div class="hidden event">';
+                $content .= '<div class="hidden event location-' . $eventbriteInfo->location_slug . '">';
                 $hiddenEvents++;
             }
             
@@ -214,8 +220,16 @@ class Eventbrite_For_Wordpress_Public {
             $limitEventsToShow--;
         }
         $content .= '</div>'."\n";
-        if($hiddenEvents > 0) {
-            $content .= "<p><button class=\"moreevents\" onClick=\"showAllEvents()\">Mehr Events anzeigen ($hiddenEvents)</button></p>";
+        if(($hiddenEvents > 0) || (count($locationList) > 1)) {
+            $content .= '<div class="eventbritelist-menu">';
+            $contentToImplode = [];
+            if($hiddenEvents > 0) {
+                $contentToImplode[] = "<button class=\"moreevents\" onClick=\"showAllEvents()\">Mehr Events anzeigen ($hiddenEvents)</button> ";
+            }
+            foreach($locationList as $key => $location) {
+                $contentToImplode[] = "<button class=\"moreevents\" onClick=\"showAllEvents('location-$key')\">$location</button> ";
+            }
+            $content .= implode(' · ', $contentToImplode) . '</p>';
         }
         $content .= '</div>'."\n";
         return $content;	

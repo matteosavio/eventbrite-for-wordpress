@@ -78,6 +78,7 @@ class Eventbrite_For_Wordpress {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_cron_jobs();
 
 	}
 
@@ -182,7 +183,19 @@ class Eventbrite_For_Wordpress {
 		$this->loader->add_action( 'init', $plugin_public, 'register_shortcodes' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		$this->loader->add_action( 'eventbrite_for_wordpress_getevents', $this, 'testHook');
+	}
+
+	/**
+	 * Register all of the hooks related to the public-facing functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_cron_jobs() {
+		$eventbriteConnector = new Eventbrite_Connector( $this->get_plugin_name(), $this->get_version() );
+
+		$this->loader->add_action( 'eventbrite_for_wordpress_getevents', $eventbriteConnector, 'updateEvents');
 	}
 
 	/**
@@ -194,23 +207,6 @@ class Eventbrite_For_Wordpress {
 		$this->loader->run();
 	}
 	
-	public function testHook() {
-        curl_setopt_array($ch = curl_init(), array(
-          CURLOPT_URL => "https://api.pushover.net/1/messages.json",
-          CURLOPT_POSTFIELDS => array(
-            "token" => "am52gok9m5jsvep7y6enchtwbd7qix",
-            "user" => "w5sK1Zhu1hoznAMam4YrBjk4NNVZ6k",
-            "message" => "done!",
-          ),
-          CURLOPT_SAFE_UPLOAD => true,
-          CURLOPT_RETURNTRANSFER => true,
-        ));
-        curl_exec($ch);
-        curl_close($ch);
-        $connector = new Eventbrite_Connector();
-        $connector->updateEvents();
-	}
-
 	/**
 	 * The name of the plugin used to uniquely identify it within the context of
 	 * WordPress and to define internationalization functionality.

@@ -32,19 +32,23 @@ class Eventbrite_Connector {
 	 * @since    1.0.0
 	 */
 	public function updateEvents() {
+    	
         if (!defined('EVENTBRITELIST_CONFIG')) {
             wp_die('Please define EVENTBRITELIST_CONFIG in wp-config.php with your app token');
         }
-        
+                                
         $events = $this->eventbritelist_getEventsForProfiles(EVENTBRITELIST_CONFIG);
         /* MISSING: WALK THROUGH ALL FUTURE + 1hr EVENTS WHERE the CUSTOM FIELD IS SET AND CHECK IF THE ID ISN'T IN THE EVENT_LIST */
 
         foreach($events as $event) {
+            
             if( ($event['event']['status'] == 'live') ||
                 ($event['event']['status'] == 'started') ||
                 ($event['event']['status'] == 'ended') ||
                 ($event['event']['status'] == 'completed')
                ) {
+                error_log($event['event']['name']['text'] . "\n", 3, "/usr/home/digitx/www_logs/events.log");
+                
                 $eventBeginDate = new \DateTime($event['event']['start']['local']);
                 $gmEventBeginDate = new \DateTime($event['event']['start']['local'], new \DateTimeZone('GMT'));
                 $eventData = [
@@ -58,7 +62,19 @@ class Eventbrite_Connector {
                   'post_excerpt'  => mb_strimwidth($event['event']['description']['text'], 0, 160, "..."),
                 ];
                 
+                if(isset($event['venue']['address']['city']) && isset($event['venue']['address']['country'])) {
+                    $eventLocation = $event['venue']['address']['city'] . ", " . $event['venue']['address']['country'];
+                }
+                else {
+                    $eventLocation = "unknown";
+                }
+                                
+                $eventbriteInfo = [];
+                $eventbriteInfo['location'] = $eventLocation;
+                $eventbriteInfo['location_slug'] = sanitize_title($eventLocation);
+                
                 $customFields = [
+                    'eventbrite_info' => json_encode($eventbriteInfo),
                     'eventbritelist_eventbrite_link' => $event['event']['url'],
                     'eventbritelist_organizer_id' => $event['event']['organizer_id']
                 ];
