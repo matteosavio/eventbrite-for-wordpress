@@ -118,11 +118,12 @@ class Eventbrite_For_Wordpress_Public {
     }
 	
 	public function eventbrite_list($atts) {
-    	
-    	$a = shortcode_atts( array(
+    	$content = '';
+    	$atts = shortcode_atts( array(
     		'status' => 'future',
     		'show_excerpt' => 'false',
-    		'limit_events_to_show' => 3
+    		'limit_events_to_show' => 3,
+    		'show_all_if_events_exeeds_up_to' => 1
     	), $atts );
     	
         $showHiddenTickets = false;
@@ -130,16 +131,11 @@ class Eventbrite_For_Wordpress_Public {
         $showMoreLinkIfThereAreHiddenEvents = true;
         $hiddenEvents = 0;
         
-        $limitEventsToShow = 3;
-        /*if(isset($atts['limit_events_to_show'])) {
-            $limitEventsToShow = intval($atts['limit_events_to_show']);
-        }*/
-        
         $args = [
         	'orderby'          => 'date',
         	'order'            => 'ASC',
         	'post_type'        => 'eventbritelist_event',
-            'post_status'      => $a['status'],
+            'post_status'      => $atts['status'],
         	'suppress_filters' => true,
             'posts_per_page'   => 100,
         ];
@@ -147,6 +143,10 @@ class Eventbrite_For_Wordpress_Public {
         $content .= '<div class="eventbritelist" id="events">'."\n";
         $content .= '<div class="list">'."\n";
         $locationList = [];
+        
+        if(count($events) <= ($atts['limit_events_to_show'] + $atts['show_all_if_events_exeeds_up_to'])) {
+            $atts['limit_events_to_show'] = count($events);
+        }
         
         foreach($events as $event) {
             if(empty(get_post_meta($event->ID, 'eventbrite_info', true)))
@@ -186,7 +186,7 @@ class Eventbrite_For_Wordpress_Public {
                 $ticketsAvailableString = '<a href="' . $eventUrl . '" class="button available" title="Updated: ' .  get_post_modified_time("l, j. F Y H:i", false, $event->ID ) . '">' . __('To the event »', 'eventbrite-for-wordpress') . '</a>';
             }
             
-            if($limitEventsToShow > 0) {
+            if($atts['limit_events_to_show'] > 0) {
                 $content .= '<div class="event location-' . $eventbriteInfo->location_slug . '">';
             }
             else {
@@ -204,20 +204,20 @@ class Eventbrite_For_Wordpress_Public {
             }
             $content .= '</div>';
                 $content .= '<div class="infos">';
-                $content .= '<p><i class="fal fa-calendar"></i> ' . get_the_time( "l, j. F Y H:i", $event->ID );
+                $content .= '<p>' . get_the_time( "l, j. F Y H:i", $event->ID );
                 if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true))) {
                     $content .= ' by <a href="' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_url', true) . '">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_organizer_name', true) . '</a><br />';
                 }
                 if(!empty(get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true))) {
                     $content .= '<i class="fal fa-thumbtack"></i> <a href="http://www.google.com/maps/place/' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_latitude', true) . ',' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location_longitude', true) . '" target="_blank">' . get_post_meta($event->ID, 'eventbritelist_eventbrite_location', true) . '</a><br />';
                 }
-                if($a["show_excerpt"] == 'true') {
+                if($atts["show_excerpt"] == 'true') {
                     $content .= get_the_excerpt($event->ID) . '<br />';
                 }
                 $content .= $ticketsAvailableString . '</p>';
                 $content .= '</div>';
             $content .= '</div>';
-            $limitEventsToShow--;
+            $atts['limit_events_to_show']--;
         }
         $content .= '</div>'."\n";
         if(($hiddenEvents > 0) || (count($locationList) > 1)) {

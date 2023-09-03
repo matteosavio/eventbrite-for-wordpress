@@ -41,13 +41,12 @@ class Eventbrite_Connector {
         /* MISSING: WALK THROUGH ALL FUTURE + 1hr EVENTS WHERE the CUSTOM FIELD IS SET AND CHECK IF THE ID ISN'T IN THE EVENT_LIST */
 
         foreach($events as $event) {
-            
             if( ($event['event']['status'] == 'live') ||
                 ($event['event']['status'] == 'started') ||
                 ($event['event']['status'] == 'ended') ||
                 ($event['event']['status'] == 'completed')
                ) {
-                error_log($event['event']['name']['text'] . "\n", 3, "/usr/home/digitx/www_logs/events.log");
+                //error_log($event['event']['name']['text'] . "\n", 3, "/usr/home/digitx/www_logs/events.log");
                 
                 $eventBeginDate = new \DateTime($event['event']['start']['local']);
                 $gmEventBeginDate = new \DateTime($event['event']['start']['local'], new \DateTimeZone('GMT'));
